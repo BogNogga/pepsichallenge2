@@ -1,0 +1,8 @@
+# claude code
+.claude/
+
+# env files
+.env*.local
+
+# logs
+app/logs/
