@@ -1,45 +1,45 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
-import { useCart } from "@/lib/cart-context";
 import type { LiveProduct } from "@/lib/types";
-import AIThinking from "./AIThinking";
 import ProductCard from "./ProductCard";
+import HeroProductCard from "./HeroProductCard";
+import { useTypewriter } from "@/lib/use-typewriter";
 
 interface ProductGridProps {
-  products: LiveProduct[];
+  hero: LiveProduct;
+  rest: LiveProduct[];
   summary: string;
-  isLoading: boolean;
-  streamedSummary: string;
-  onCheckout?: () => void;
+  onFindOthers: () => void;
 }
 
-const container = {
+const SKELETON_HOLD_MS = 1600;
+
+const grid = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
-    transition: { staggerChildren: 0.1, delayChildren: 0.15 },
+    transition: { staggerChildren: 0.08, delayChildren: 0.2 },
   },
 };
 
-const item = {
-  hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut" as const } },
+const cell = {
+  hidden: { opacity: 0, y: 12 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: "easeOut" as const } },
 };
 
-function SkeletonProductCard() {
+function CardSkeleton() {
   return (
-    <div className="bg-surface rounded-2xl overflow-hidden">
+    <div className="bg-surface rounded-2xl overflow-hidden border border-border-subtle/60">
       <div className="aspect-video shimmer-bg" />
       <div className="p-5 space-y-3">
         <div className="h-5 w-3/4 rounded-lg shimmer-bg" />
         <div className="h-4 w-1/3 rounded-lg shimmer-bg" />
         <div className="h-7 w-1/4 rounded-lg shimmer-bg" />
-        <div className="space-y-2">
+        <div className="space-y-2 pt-2">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-4 w-full rounded-lg shimmer-bg" />
+            <div key={i} className="h-3.5 w-full rounded-lg shimmer-bg" />
           ))}
         </div>
         <div className="h-11 w-full rounded-xl shimmer-bg mt-4" />
@@ -48,83 +48,91 @@ function SkeletonProductCard() {
   );
 }
 
-export default function ProductGrid({
-  products,
-  summary,
-  isLoading,
-  streamedSummary,
-  onCheckout,
-}: ProductGridProps) {
-  const { totalItems } = useCart();
+export default function ProductGrid({ hero, rest, summary, onFindOthers }: ProductGridProps) {
+  const [skeletonDone, setSkeletonDone] = useState(false);
+  const typedSummary = useTypewriter(skeletonDone ? summary : "", 40);
 
-  const isStreaming = !summary && streamedSummary.length > 0;
-  const displaySummary = summary || streamedSummary;
+  useEffect(() => {
+    const t = window.setTimeout(() => setSkeletonDone(true), SKELETON_HOLD_MS);
+    return () => window.clearTimeout(t);
+  }, []);
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 py-12">
-      {/* Loading state */}
-      {isLoading && (
-        <div className="space-y-8">
-          <AIThinking message="Searching the web for the best products..." />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3].map((i) => (
-              <SkeletonProductCard key={i} />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Summary */}
-      {!isLoading && displaySummary && (
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
+    <div className="w-full max-w-6xl mx-auto px-4 pt-8 pb-24">
+      {/* AI summary */}
+      <div className="min-h-[3rem] mb-8 text-center">
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 0.4 }}
-          className="bg-surface rounded-2xl p-6 mb-8"
+          className="text-text-primary text-base md:text-lg leading-relaxed max-w-3xl mx-auto"
         >
-          <p className="text-text-primary leading-relaxed">
-            {displaySummary}
-            {isStreaming && (
-              <span className="typewriter-cursor" />
-            )}
-          </p>
-        </motion.div>
-      )}
+          {typedSummary}
+          {skeletonDone && typedSummary.length < summary.length && (
+            <span className="typewriter-cursor" />
+          )}
+        </motion.p>
+      </div>
 
-      {/* Product grid */}
-      {!isLoading && products.length > 0 && (
+      {/* Hero */}
+      <div className="mb-10">
+        {!skeletonDone ? (
+          <div className="max-w-3xl mx-auto">
+            <CardSkeleton />
+          </div>
+        ) : (
+          <HeroProductCard product={hero} variant="grid" />
+        )}
+      </div>
+
+      {/* Rest grid: 2 cols */}
+      {rest.length > 0 && (
         <motion.div
-          variants={container}
+          variants={grid}
           initial="hidden"
-          animate="show"
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          animate={skeletonDone ? "show" : "hidden"}
+          className="grid grid-cols-1 md:grid-cols-2 gap-6"
         >
-          {products.map((product) => (
-            <motion.div key={product.id} variants={item}>
-              <ProductCard product={product} />
-            </motion.div>
-          ))}
+          {!skeletonDone
+            ? Array.from({ length: Math.min(4, Math.max(2, rest.length)) }).map((_, i) => (
+                <div key={i}>
+                  <CardSkeleton />
+                </div>
+              ))
+            : rest.map((product) => (
+                <motion.div key={product.id} variants={cell}>
+                  <ProductCard product={product} />
+                </motion.div>
+              ))}
         </motion.div>
       )}
 
-      {/* Continue to checkout */}
-      {!isLoading && products.length > 0 && (
+      {/* Find others — no-op show element */}
+      {skeletonDone && (
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.5 }}
+          transition={{ delay: 0.6, duration: 0.4 }}
           className="flex justify-center mt-10"
         >
-          <Button
-            disabled={totalItems === 0}
-            onClick={onCheckout}
-            className="bg-accent hover:bg-accent/90 text-white rounded-xl px-8 h-12 text-base font-semibold disabled:opacity-40 transition-all"
-          >
-            Continue to checkout
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
+          <FindOthersButton onClick={onFindOthers} />
         </motion.div>
       )}
     </div>
+  );
+}
+
+function FindOthersButton({ onClick }: { onClick: () => void }) {
+  return (
+    <motion.button
+      type="button"
+      whileTap={{ scale: 0.97 }}
+      whileHover={{ scale: 1.03 }}
+      transition={{ duration: 0.15 }}
+      onClick={onClick}
+      className="px-5 py-2.5 text-sm text-text-secondary border border-border-subtle hover:border-text-secondary/40 hover:text-text-primary rounded-xl transition-colors"
+    >
+      Find others
+    </motion.button>
   );
 }

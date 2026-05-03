@@ -6,26 +6,26 @@
 
 @layer base {
   :root {
-    --background: 0 0% 4%;
+    --background: 222 35% 19%;
     --foreground: 0 0% 98%;
-    --card: 0 0% 8%;
+    --card: 222 33% 25%;
     --card-foreground: 0 0% 98%;
-    --popover: 0 0% 8%;
+    --popover: 222 33% 25%;
     --popover-foreground: 0 0% 98%;
-    --primary: 187 92% 43%;
+    --primary: 187 85% 53%;
     --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 15%;
+    --secondary: 222 26% 22%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 15%;
+    --muted: 222 26% 22%;
     --muted-foreground: 240 4% 66%;
-    --accent: 187 92% 43%;
+    --accent: 187 85% 53%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 15%;
-    --input: 0 0% 15%;
-    --ring: 187 92% 43%;
-    --radius: 1rem;
+    --border: 222 18% 28%;
+    --input: 222 18% 28%;
+    --ring: 187 85% 53%;
+    --radius: 1.125rem;
   }
 
   * {
@@ -52,7 +52,7 @@
   .typewriter-cursor::after {
     content: "▋";
     animation: blink 1s step-end infinite;
-    color: #06B6D4;
+    color: #22D3EE;
   }
 
   @keyframes blink {
@@ -60,7 +60,47 @@
   }
 
   .glow-accent {
-    box-shadow: 0 0 10px rgba(6,182,212,0.3), 0 0 20px rgba(6,182,212,0.15);
+    box-shadow: 0 0 10px rgba(34,211,238,0.12), 0 0 20px rgba(34,211,238,0.06);
+  }
+
+  /* Hero card resting glow — softer (60% less) blue, with a 5px outline */
+  .glow-hero {
+    box-shadow:
+      inset 0 0 30px rgba(34, 211, 238, 0.032),
+      0 0 0 5px rgba(34, 211, 238, 0.20),
+      0 0 40px rgba(34, 211, 238, 0.072);
+  }
+
+  /* Traveling cyan dot border for the loader skeleton */
+  .traveling-border {
+    position: relative;
+    overflow: hidden;
+  }
+  .traveling-border::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: conic-gradient(
+      from 0deg,
+      transparent 0deg,
+      transparent 270deg,
+      rgba(6, 182, 212, 0.0) 320deg,
+      rgba(6, 182, 212, 0.85) 350deg,
+      rgba(6, 182, 212, 0.0) 360deg
+    );
+    animation: traveling-border-rotate 3s linear infinite;
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  @keyframes traveling-border-rotate {
+    to { transform: rotate(360deg); }
   }
 }
 

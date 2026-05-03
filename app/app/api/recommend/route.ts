@@ -2,10 +2,11 @@ import { randomUUID } from "node:crypto";
 import { anthropic, CLAUDE_MODEL } from "@/lib/anthropic";
 import { generateId } from "@/lib/id";
 import { log } from "@/lib/logger";
+import { fetchSerpapiImages } from "@/lib/serpapi-image";
 import type { LiveProduct, QuestionAnswer, RecommendResponse } from "@/lib/types";
 
 const SYSTEM_PROMPT =
-  "You are a shopping AI for Bluetooth earbuds. Use web search to find 3–5 current products matching the user's needs. For each product, extract: name, brand, price (raw, as found), currency, an image URL, and the following features: batteryLifeHours, bluetoothVersion, noiseCancelling, waterResistance, weightGrams. Use null for any field you cannot verify — never fabricate values. Write a 2–3 sentence rationale per product including a small caveat drawn from customer sentiment. Mark at most 2 products as isRecommended: true. After searching, call the provide_recommendations tool with your results.";
+  "You are a shopping AI for Bluetooth earbuds. Use web search to find 3–5 current products matching the user's needs. For each product, extract: name, brand, price (raw, as found), currency, imageUrl (set to null — images are resolved separately), and the following features: batteryLifeHours, bluetoothVersion, noiseCancelling, waterResistance, weightGrams. Use null for any field you cannot verify — never fabricate values. Write a 2–3 sentence rationale per product including a small caveat drawn from customer sentiment. Mark at most 2 products as isRecommended: true. After searching, call the provide_recommendations tool with your results.";
 
 const RECOMMENDATIONS_TOOL = {
   name: "provide_recommendations" as const,
@@ -107,11 +108,14 @@ export async function POST(request: Request) {
           return;
         }
 
-        // Build user message from query + answers
+        // Build user message from query + answers (filter out no_preference)
         let userMessage = `Original request: ${query}`;
-        if (answers && answers.length > 0) {
+        const activeAnswers = (answers ?? []).filter(
+          (a: QuestionAnswer) => !a.no_preference
+        );
+        if (activeAnswers.length > 0) {
           userMessage += "\n\nUser preferences:\n";
-          userMessage += answers
+          userMessage += activeAnswers
             .map((a: QuestionAnswer) => `- ${a.question}: ${a.answer}`)
             .join("\n");
         }
@@ -255,10 +259,20 @@ export async function POST(request: Request) {
         }
 
         // Assign UUIDs to each product
-        const recommendations: LiveProduct[] = toolResult.recommendations.map((product) => ({
+        let recommendations: LiveProduct[] = toolResult.recommendations.map((product) => ({
           ...product,
           id: generateId(),
         }));
+
+        // Scrape real product images from source URLs
+        safeEnqueue(
+          encoder.encode(sseEvent("status", { message: "Fetching product images..." }))
+        );
+        try {
+          recommendations = await fetchSerpapiImages(recommendations, sessionId);
+        } catch {
+          // SerpAPI failed entirely — proceed with original imageUrl values
+        }
 
         const result: RecommendResponse = {
           summary: toolResult.summary,

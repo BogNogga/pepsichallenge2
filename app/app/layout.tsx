@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { Toaster } from "sonner";
 import { CartProvider } from "@/lib/cart-context";
+import BackgroundGlow from "@/components/chrome/BackgroundGlow";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "AI Shopping Assistant — Bluetooth Earbuds",
+  title: "Agent — AI Shopping Assistant",
   description:
     "Experience AI-powered product discovery. Find the perfect Bluetooth earbuds with intelligent recommendations.",
 };
@@ -16,7 +17,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <body className="min-h-screen bg-background text-text-primary font-sans antialiased">
+      <body className="min-h-screen bg-background text-text-primary font-sans antialiased overflow-x-hidden">
+        <BackgroundGlow />
         <CartProvider>
           {children}
           <Toaster

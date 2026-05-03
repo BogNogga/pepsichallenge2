@@ -11,12 +11,26 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "#0A0A0A",
-        surface: "#141414",
-        accent: "#06B6D4",
+        background: "#1F2941",
+        surface: "#2A3554",
+        accent: "#22D3EE",
+        "accent-soft": "#7DDFF2",
+        "accent-secondary": "#38BDF8",
+        "accent-tertiary": "#0D9488",
+        neutral: "#0F172A",
+        "neutral-soft": "#1F2941",
         "text-primary": "#FAFAFA",
         "text-secondary": "#A1A1AA",
-        "border-subtle": "#262626",
+        "border-subtle": "#46527A",
+      },
+      borderRadius: {
+        DEFAULT: "18px",
+        sm: "10px",
+        md: "14px",
+        lg: "18px",
+        xl: "20px",
+        "2xl": "22px",
+        "3xl": "24px",
       },
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],
@@ -36,8 +50,8 @@ const config: Config = {
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
         glow: {
-          "0%": { boxShadow: "0 0 5px rgba(6,182,212,0.2), 0 0 10px rgba(6,182,212,0.1)" },
-          "100%": { boxShadow: "0 0 10px rgba(6,182,212,0.4), 0 0 20px rgba(6,182,212,0.2)" },
+          "0%": { boxShadow: "0 0 5px rgba(34,211,238,0.08), 0 0 10px rgba(34,211,238,0.04)" },
+          "100%": { boxShadow: "0 0 10px rgba(34,211,238,0.16), 0 0 20px rgba(34,211,238,0.08)" },
         },
       },
     },

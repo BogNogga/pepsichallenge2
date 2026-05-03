@@ -45,6 +45,22 @@ export type RecommendResponse = {
 export type QuestionAnswer = {
   question: string;
   answer: string;
+  no_preference?: boolean;
 };
 
+/**
+ * @deprecated use SearchPhase instead. Kept for backwards-compat exports.
+ */
 export type AppScreen = "landing" | "clarifying" | "results" | "checkout";
+
+/**
+ * The 6-value phase enum that drives the demo flow. Replaces AppScreen + the
+ * separate clarifyLoading / recommendLoading flags.
+ */
+export type SearchPhase =
+  | "landing"
+  | "clarifying-loading"
+  | "clarifying-ready"
+  | "searching"
+  | "revealing"
+  | "grid-ready";

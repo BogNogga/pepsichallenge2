@@ -31,11 +31,13 @@ app/
 │       └── dev/logs/route.ts     # GET/DELETE: dev log API
 ├── components/
 │   ├── PromptInput.tsx       # Landing screen query input
-│   ├── ClarifyingQuestions.tsx  # Q&A interface
+│   ├── ClarifyingQuestions.tsx  # Q&A interface with "Geen voorkeur" per question
 │   ├── ProductGrid.tsx       # Product results with summary
-│   ├── ProductCard.tsx       # Individual product card
+│   ├── ProductCard.tsx       # Individual product card with "Meer info" expand
+│   ├── ProductDetailDrawer.tsx # Side drawer with full product details, pros/cons
+│   ├── MetricInfo.tsx        # (i) tooltip for spec values (uses metric-descriptions)
 │   ├── CartDrawer.tsx        # Shopping cart sidebar
-│   ├── AIThinking.tsx        # Loading animation
+│   ├── AIThinking.tsx        # Loading animation with rotating messages + progress bar
 │   ├── PlaceholderImage.tsx  # Image fallback
 │   └── ui/                   # shadcn/ui primitives (button, badge, tooltip)
 ├── lib/
@@ -43,6 +45,7 @@ app/
 │   ├── stripe.ts             # Stripe client singleton
 │   ├── cart-context.tsx      # React Context + useReducer for cart state
 │   ├── types.ts              # All TypeScript types
+│   ├── metric-descriptions.ts # Hardcoded metric explanations (Dutch) + label→key mapping
 │   ├── logger.ts             # Structured logging (file + in-memory)
 │   ├── logger-types.ts       # Log type definitions
 │   ├── fallbacks.ts          # Fallback data when AI is unavailable
@@ -54,8 +57,9 @@ app/
 ## Key Flows
 
 1. **Search → Clarify:** User enters query → `POST /api/clarify` → Claude generates 3-5 questions using `generate_questions` tool
-2. **Clarify → Recommend:** User answers questions → `POST /api/recommend` → Claude uses web_search (up to 5 times) → returns structured products via SSE stream
+2. **Clarify → Recommend:** User answers questions (or marks "Geen voorkeur") → `POST /api/recommend` → backend filters out `no_preference` answers → Claude uses web_search (up to 5 times) → returns structured products via SSE stream
 3. **Cart → Checkout:** User adds products to cart → `POST /api/create-checkout-session` → redirect to Stripe
+4. **Home reset:** Home button (top-left) → confirmation modal if work in progress → resets all client state to landing
 
 ## Development
 

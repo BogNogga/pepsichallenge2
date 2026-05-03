@@ -2,25 +2,19 @@
 
 import { useCallback, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
+import { ArrowUp, Paperclip, Mic, Image as ImageIcon, Globe } from "lucide-react";
 
 interface PromptInputProps {
   onSubmit: (query: string) => void;
+  /** Optional: when provided, renders a small ghost link to run the demo with mock data. */
+  onMockRun?: () => void;
 }
-
-const suggestions = [
-  "Best for work calls",
-  "Noise cancelling under $200",
-  "Long battery life",
-  "Premium sound quality",
-];
 
 const container = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
-    transition: { staggerChildren: 0.1, delayChildren: 0.2 },
+    transition: { staggerChildren: 0.1, delayChildren: 0.15 },
   },
 };
 
@@ -29,7 +23,7 @@ const item = {
   show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" as const } },
 };
 
-export default function PromptInput({ onSubmit }: PromptInputProps) {
+export default function PromptInput({ onSubmit, onMockRun }: PromptInputProps) {
   const [query, setQuery] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -37,24 +31,13 @@ export default function PromptInput({ onSubmit }: PromptInputProps) {
     const el = textareaRef.current;
     if (el) {
       el.style.height = "auto";
-      el.style.height = `${Math.min(el.scrollHeight, 200)}px`;
+      el.style.height = `${Math.min(el.scrollHeight, 220)}px`;
     }
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setQuery(e.target.value);
     autoResize();
-  };
-
-  const handleChip = (text: string) => {
-    setQuery(text);
-    // Need to wait a tick for state to update before resizing
-    requestAnimationFrame(() => {
-      if (textareaRef.current) {
-        textareaRef.current.style.height = "auto";
-        textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 200)}px`;
-      }
-    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -69,23 +52,25 @@ export default function PromptInput({ onSubmit }: PromptInputProps) {
     }
   };
 
+  const canSubmit = query.trim().length > 0;
+
   return (
     <motion.div
       variants={container}
       initial="hidden"
       animate="show"
-      className="flex min-h-[80vh] flex-col items-center justify-center px-4"
+      className="flex min-h-[70vh] flex-col items-center justify-center px-4"
     >
       <motion.h1
         variants={item}
-        className="text-4xl md:text-5xl font-bold text-text-primary text-center mb-4"
+        className="text-5xl md:text-7xl font-bold text-text-primary text-center mb-4 tracking-tight max-w-4xl"
       >
         What are you shopping for?
       </motion.h1>
 
       <motion.p
         variants={item}
-        className="text-text-secondary text-lg text-center mb-10 max-w-xl"
+        className="text-text-secondary text-lg md:text-xl text-center mb-10 max-w-2xl"
       >
         Describe what you need. Our AI will help you find it.
       </motion.p>
@@ -93,9 +78,9 @@ export default function PromptInput({ onSubmit }: PromptInputProps) {
       <motion.form
         variants={item}
         onSubmit={handleSubmit}
-        className="w-full max-w-2xl flex flex-col gap-4"
+        className="w-full max-w-3xl"
       >
-        <div className="relative">
+        <div className="bg-surface border border-border-subtle rounded-lg shadow-2xl focus-within:border-accent/60 focus-within:ring-1 focus-within:ring-accent/30 transition-colors">
           <textarea
             ref={textareaRef}
             value={query}
@@ -103,32 +88,59 @@ export default function PromptInput({ onSubmit }: PromptInputProps) {
             onKeyDown={handleKeyDown}
             rows={3}
             placeholder="e.g. I'm looking for the best earbuds for working from home..."
-            className="w-full resize-none bg-surface border border-border-subtle rounded-2xl px-5 py-4 text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:border-accent/60 focus:ring-1 focus:ring-accent/30 transition-colors text-base leading-relaxed"
+            className="w-full resize-none bg-transparent px-6 pt-5 pb-2 text-text-primary placeholder:text-text-secondary/60 focus:outline-none text-lg leading-relaxed"
           />
+          <div className="flex items-center justify-between px-3 pb-3 pt-1">
+            <div className="flex items-center gap-1">
+              <ToolbarIcon Icon={Paperclip} label="Attach" />
+              <ToolbarIcon Icon={ImageIcon} label="Add image" />
+              <ToolbarIcon Icon={Globe} label="Web sources" />
+              <ToolbarIcon Icon={Mic} label="Voice" />
+            </div>
+            <button
+              type="submit"
+              disabled={!canSubmit}
+              aria-label="Find products"
+              className="flex items-center justify-center h-10 w-10 rounded-lg bg-accent text-white hover:bg-accent/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+            >
+              <ArrowUp className="h-5 w-5" strokeWidth={2.5} />
+            </button>
+          </div>
         </div>
-
-        <Button
-          type="submit"
-          disabled={!query.trim()}
-          className="self-end bg-accent hover:bg-accent/90 text-white rounded-xl px-8 h-12 text-base font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-        >
-          <Search className="mr-2 h-4 w-4" />
-          Find products
-        </Button>
       </motion.form>
 
-      <motion.div variants={item} className="flex flex-wrap gap-3 mt-8 justify-center max-w-2xl">
-        {suggestions.map((text) => (
-          <button
-            key={text}
-            type="button"
-            onClick={() => handleChip(text)}
-            className="px-4 py-2 rounded-xl border border-border-subtle bg-background text-text-secondary text-sm hover:border-accent hover:text-accent transition-colors cursor-pointer"
-          >
-            {text}
-          </button>
-        ))}
-      </motion.div>
+      {onMockRun && (
+        <motion.button
+          variants={item}
+          type="button"
+          onClick={onMockRun}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
+          transition={{ duration: 0.15 }}
+          className="mt-6 text-xs font-medium text-text-secondary hover:text-text-primary bg-surface border border-border-subtle hover:border-text-secondary/50 rounded-lg px-3 py-1.5 transition-colors"
+        >
+          Run mock demo (no API calls)
+        </motion.button>
+      )}
     </motion.div>
+  );
+}
+
+function ToolbarIcon({
+  Icon,
+  label,
+}: {
+  Icon: typeof Paperclip;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      title={label}
+      aria-label={label}
+      className="flex items-center justify-center h-9 w-9 rounded-lg text-text-secondary hover:text-text-primary hover:bg-background transition-colors"
+    >
+      <Icon className="h-5 w-5" strokeWidth={2} />
+    </button>
   );
 }
