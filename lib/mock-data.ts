@@ -52,7 +52,8 @@ export function buildMockProducts(): LiveProduct[] {
       brand: "Bose",
       price: 299,
       currency: "USD",
-      imageUrl: null,
+      imageUrl:
+        "https://i.postimg.cc/rmS7YKTq/SF-UOE-Q3-STORY-PAGE-IMG-11.webp",
       sourceUrl: "https://www.bose.com/p/earbuds/quietcomfort-ultra-earbuds",
       features: {
         batteryLifeHours: 6,
@@ -77,7 +78,8 @@ export function buildMockProducts(): LiveProduct[] {
       brand: "Apple",
       price: 249,
       currency: "USD",
-      imageUrl: null,
+      imageUrl:
+        "https://i.postimg.cc/TwGt10zZ/cupertino-california-new-apple-airpods-pro-are-displayed-during-an-apple-special-event-at.webp",
       sourceUrl: "https://www.apple.com/airpods-pro/",
       features: {
         batteryLifeHours: 6,
@@ -101,7 +103,7 @@ export function buildMockProducts(): LiveProduct[] {
       brand: "Sony",
       price: 279,
       currency: "USD",
-      imageUrl: null,
+      imageUrl: "https://i.postimg.cc/R0wPvyD6/s-l400.webp",
       sourceUrl: "https://electronics.sony.com/audio/headphones/c/all-headphones",
       features: {
         batteryLifeHours: 8,

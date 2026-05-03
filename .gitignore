@@ -7,6 +7,13 @@
 # dev logs
 /logs
 
+# internal docs / context — not for the public repo
+CLAUDE.md
+CHANGELOG.md
+PEPSI_UI_BRIEF.md
+context and notes/
+README-app.md
+
 # dependencies
 /node_modules
 /.pnp
