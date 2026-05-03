@@ -15,43 +15,33 @@ AI-powered Bluetooth earbuds shopping assistant. Users describe what they want, 
 
 ## Project Structure
 
-All source code lives under `app/`:
+Standard Next.js layout — source lives at the repo root (no inner wrapper directory). This makes Vercel's default detection work without setting a Root Directory.
 
 ```
-app/
-├── app/
-│   ├── page.tsx              # Main client component — orchestrates 3 screens
-│   ├── layout.tsx            # Root layout with CartProvider + Toaster
-│   ├── success/page.tsx      # Stripe success confirmation
-│   ├── dev/page.tsx          # Dev panel — log viewer UI
+.
+├── app/                       # Next.js App Router
+│   ├── page.tsx               # Main client component — orchestrates 3 screens
+│   ├── layout.tsx             # Root layout with CartProvider + Toaster
+│   ├── globals.css
+│   ├── success/page.tsx       # Stripe success confirmation
+│   ├── dev/page.tsx           # Dev panel — log viewer UI
 │   └── api/
-│       ├── clarify/route.ts      # POST: generates clarifying questions via Claude
-│       ├── recommend/route.ts    # POST: web search + product recommendations (SSE stream)
+│       ├── clarify/route.ts            # POST: generates clarifying questions via Claude
+│       ├── recommend/route.ts          # POST: web search + product recommendations (SSE stream)
 │       ├── create-checkout-session/route.ts  # POST: Stripe checkout
-│       └── dev/logs/route.ts     # GET/DELETE: dev log API
-├── components/
-│   ├── PromptInput.tsx       # Landing screen query input
-│   ├── ClarifyingQuestions.tsx  # Q&A interface with "Geen voorkeur" per question
-│   ├── ProductGrid.tsx       # Product results with summary
-│   ├── ProductCard.tsx       # Individual product card with "Meer info" expand
-│   ├── ProductDetailDrawer.tsx # Side drawer with full product details, pros/cons
-│   ├── MetricInfo.tsx        # (i) tooltip for spec values (uses metric-descriptions)
-│   ├── CartDrawer.tsx        # Shopping cart sidebar
-│   ├── AIThinking.tsx        # Loading animation with rotating messages + progress bar
-│   ├── PlaceholderImage.tsx  # Image fallback
-│   └── ui/                   # shadcn/ui primitives (button, badge, tooltip)
-├── lib/
-│   ├── anthropic.ts          # Claude API singleton + model constant
-│   ├── stripe.ts             # Stripe client singleton
-│   ├── cart-context.tsx      # React Context + useReducer for cart state
-│   ├── types.ts              # All TypeScript types
-│   ├── metric-descriptions.ts # Hardcoded metric explanations (Dutch) + label→key mapping
-│   ├── logger.ts             # Structured logging (file + in-memory)
-│   ├── logger-types.ts       # Log type definitions
-│   ├── fallbacks.ts          # Fallback data when AI is unavailable
-│   ├── id.ts                 # UUID generation
-│   └── utils.ts              # Tailwind cn() utility
-└── public/                   # Static assets
+│       └── dev/logs/route.ts           # GET/DELETE: dev log API
+├── components/                # UI components (PromptInput, ProductCard, ProductDetailDrawer,
+│                              # HeroProductCard, ClarifyingQuestions, ProductGrid, MetricInfo,
+│                              # PlaceholderImage, AgentCheckoutTease, cart/, chrome/, loader/, ui/)
+├── lib/                       # anthropic, stripe, cart-context, types, fallbacks, id, utils,
+│                              # metric-descriptions, copy-strings, fly-to-cart-event, logger,
+│                              # logger-types, loader-math, mock-data, mock-pipeline, scrape-image,
+│                              # serpapi-image, use-typewriter
+├── public/                    # Static assets
+├── package.json               # next 14, react 18, tailwind 3.4, framer-motion, anthropic-ai/sdk, stripe
+├── next.config.mjs
+├── tailwind.config.ts
+└── tsconfig.json
 ```
 
 ## Key Flows
@@ -64,7 +54,6 @@ app/
 ## Development
 
 ```bash
-cd app
 pnpm install
 pnpm dev          # starts on http://localhost:3000
 ```
