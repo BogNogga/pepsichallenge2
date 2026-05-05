@@ -12,6 +12,11 @@ const g = globalThis as unknown as { __devLogBuffer?: LogEntry[] };
 if (!g.__devLogBuffer) g.__devLogBuffer = [];
 const logBuffer = g.__devLogBuffer;
 
+// Skip filesystem writes on serverless platforms with read-only filesystems
+// (Vercel mounts /var/task read-only). The in-memory buffer + /api/dev/logs
+// is already disabled in production, so file logs aren't useful there anyway.
+const FILE_LOGGING_ENABLED = !process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME;
+
 const logsDir = join(process.cwd(), "logs");
 let logsDirCreated = false;
 
@@ -42,11 +47,17 @@ export function log(
     logBuffer.shift();
   }
 
-  // Append to file (fire-and-forget)
-  ensureLogsDir();
-  appendFile(getLogFilePath(), JSON.stringify(fullEntry) + "\n", (err) => {
-    if (err) console.error("Failed to write log file:", err);
-  });
+  // Append to file (fire-and-forget) — skip on serverless read-only fs
+  if (FILE_LOGGING_ENABLED) {
+    try {
+      ensureLogsDir();
+      appendFile(getLogFilePath(), JSON.stringify(fullEntry) + "\n", (err) => {
+        if (err) console.error("Failed to write log file:", err);
+      });
+    } catch (err) {
+      console.error("Failed to write log file:", err);
+    }
+  }
 }
 
 export function getLogs(filter?: LogFilter): LogEntry[] {
