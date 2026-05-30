@@ -3,10 +3,6 @@ import { getLogs, clearLogs } from "@/lib/logger";
 import type { LogType } from "@/lib/logger-types";
 
 export async function GET(request: Request) {
-  if (process.env.NODE_ENV === "production") {
-    return NextResponse.json({ error: "Not available" }, { status: 404 });
-  }
-
   const url = new URL(request.url);
   const type = url.searchParams.get("type") as LogType | null;
   const sessionId = url.searchParams.get("sessionId") ?? undefined;
@@ -28,10 +24,6 @@ export async function GET(request: Request) {
 }
 
 export async function DELETE() {
-  if (process.env.NODE_ENV === "production") {
-    return NextResponse.json({ error: "Not available" }, { status: 404 });
-  }
-
   clearLogs();
   return NextResponse.json({ ok: true });
 }
